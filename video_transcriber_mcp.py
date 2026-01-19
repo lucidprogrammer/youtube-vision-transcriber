@@ -39,10 +39,13 @@ async def internal_transcriber_func():
 @mcp.tool
 async def transcribe_video_file(video_path_str: str) -> str:
     """
-    Transcribes a local video file.
+    Transcribe a local video file using an internal multimodal agent.
 
     Args:
         video_path_str: The absolute path to the local video file.
+
+    Returns:
+        str: The generated transcript or an error message prefixed with "Error:".
     """
     video_path = Path(video_path_str.strip())
     
