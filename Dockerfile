@@ -10,14 +10,17 @@ ENV PATH="/root/.local/bin:${PATH}" \
 # Install system dependencies
 # - ffmpeg: required for video splitting
 # - git, curl, ca-certificates: required for uv installation and project setup
-# - build-essential: required for building some dependencies if wheels are missing
+# - build-essential: required for building some dependencies
+# - nodejs, npm: required for filesystem MCP server via npx
 RUN apt-get update -qq && \
     apt-get install -y -qq --no-install-recommends \
       ca-certificates \
       curl \
       git \
       build-essential \
-      ffmpeg && \
+      ffmpeg \
+      nodejs \
+      npm && \
     rm -rf /var/lib/apt/lists/*
 
 # Install uv for fast dependency management using the official script

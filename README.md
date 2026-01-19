@@ -108,6 +108,14 @@ Add the following to your configuration:
 }
 ```
 
+### 🛠️ Troubleshooting (Docker Mounts)
+
+If you see a **"mounts denied"** error (e.g., `The path /tmp/youtube_data is not shared`):
+
+1. **Host Sharing**: In Docker Desktop settings, go to **Resources > File Sharing** and ensure the path is added.
+2. **Path Selection**: Use a path inside your home directory (e.g., `/Users/yourname/youtube_data`) which is usually shared by default.
+3. **Absolute Paths**: Ensure you use the full absolute path on the host machine.
+
 ## Architecture
 
 The system consists of three main MCP components orchestrated by a master agent:
