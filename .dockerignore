@@ -1,0 +1,13 @@
+.git
+.venv
+__pycache__
+youtube_data
+fastagent.secrets.yaml
+fastagent.jsonl
+.cache
+*.mp4
+*.json
+*.md
+!README.md
+!CONTRIBUTING.md
+!LICENSE

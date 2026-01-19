@@ -61,69 +61,52 @@ Paste a YouTube URL when prompted. The agent will:
 2.  Split and transcribe it.
 3.  Generate an `article.md` in the video's folder.
 
+## Quick Start (Docker)
+
+The easiest way to use this tool is via its official Docker image. No installation required other than Docker.
+
+```bash
+docker run -it --rm \
+  -e GOOGLE__API_KEY="your_google_key" \
+  -e OPENAI__API_KEY="your_openai_key" \
+  -v /absolute/path/to/data:/app/youtube_data \
+  lucidprogrammer/youtube-vision-transcriber
+```
+
 ## Environment Configuration
 
-Configuration can also be provided through environment variables, with the naming pattern `SECTION__SUBSECTION__PROPERTY`.
+Configuration is provided through environment variables using the `SECTION__SUBSECTION__PROPERTY` pattern:
 
 - `GOOGLE__API_KEY`: Your Google Gemini API Key.
-- `OPENAI__API_KEY`: Your OpenAI API Key.
-- `YOUTUBE_MCP_BASE_DIR`: Absolute path to the directory where video data and transcripts will be stored.
+- `OPENAI__API_KEY`: Your OpenAI API Key (Optional, defaults to GPT-4o-mini).
+- `YOUTUBE_MCP_BASE_DIR`: Path inside the container (`/app/youtube_data`). **Always map this to a local volume** to persist video data.
 
 ## MCP Client Usage
 
-This project exposes the **YouTube Vision Transcriber** tools via MCP. You can run it directly using `uvx` without needing to clone the repository manually.
+You can use this tool directly in **Claude Desktop** or **VS Code** by pointing to the Docker image.
 
-### VS Code (MCP Extension)
+### VS Code (MCP Extension) / Claude Desktop
 
-Add the server to your generic MCP settings (e.g., in `.vscode/settings.json` or the extension specific config):
-
-```json
-{
-  "mcp.servers": {
-    "youtube-vision": {
-      "command": "uvx",
-      "args": [
-        "--from",
-        "git+https://github.com/lucidprogrammer/youtube-vision-transcriber",
-        "youtube-vision-transcriber",
-        "--server"
-      ],
-      "env": {
-        "YOUTUBE_MCP_BASE_DIR": "/absolute/path/to/data_dir",
-        "GOOGLE__API_KEY": "your_google_key",
-        "OPENAI__API_KEY": "your_openai_key"
-      }
-    }
-  }
-}
-```
-
-### Claude Desktop
-
-Add to your `claude_desktop_config.json`:
+Add the following to your configuration:
 
 ```json
 {
   "mcpServers": {
     "youtube-vision": {
-      "command": "uvx",
+      "command": "docker",
       "args": [
-        "--from",
-        "git+https://github.com/lucidprogrammer/youtube-vision-transcriber",
-        "youtube-vision-transcriber",
-        "--server"
-      ],
-      "env": {
-        "YOUTUBE_MCP_BASE_DIR": "/absolute/path/to/data_dir",
-        "GOOGLE__API_KEY": "your_google_key",
-        "OPENAI__API_KEY": "your_openai_key"
-      }
+        "run",
+        "-i",
+        "--rm",
+        "-e", "GOOGLE__API_KEY=your_google_key",
+        "-e", "OPENAI__API_KEY=your_openai_key",
+        "-v", "/absolute/path/to/data_dir:/app/youtube_data",
+        "lucidprogrammer/youtube-vision-transcriber"
+      ]
     }
   }
 }
 ```
-
-**Note**: Ensure you use absolute paths for `cwd` and `env`.
 
 ## Architecture
 
