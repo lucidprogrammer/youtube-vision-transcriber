@@ -61,9 +61,17 @@ Paste a YouTube URL when prompted. The agent will:
 2.  Split and transcribe it.
 3.  Generate an `article.md` in the video's folder.
 
+## Environment Configuration
+
+Configuration can also be provided through environment variables, with the naming pattern `SECTION__SUBSECTION__PROPERTY`.
+
+- `GOOGLE__API_KEY`: Your Google Gemini API Key.
+- `OPENAI__API_KEY`: Your OpenAI API Key.
+- `YOUTUBE_MCP_BASE_DIR`: Absolute path to the directory where video data and transcripts will be stored.
+
 ## MCP Client Usage
 
-This project exposes the **YouTube Vision Transcriber** tools via MCP, allowing you to use it directly inside **Claude Desktop** or **VS Code** (with the MCP extension).
+This project exposes the **YouTube Vision Transcriber** tools via MCP. You can run it directly using `uvx` without needing to clone the repository manually.
 
 ### VS Code (MCP Extension)
 
@@ -73,11 +81,17 @@ Add the server to your generic MCP settings (e.g., in `.vscode/settings.json` or
 {
   "mcp.servers": {
     "youtube-vision": {
-      "command": "uv",
-      "args": ["run", "agent.py", "--server"],
-      "cwd": "/absolute/path/to/youtube-vision-transcriber",
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/lucidprogrammer/youtube-vision-transcriber",
+        "youtube-vision-transcriber",
+        "--server"
+      ],
       "env": {
-        "YOUTUBE_MCP_BASE_DIR": "/absolute/path/to/youtube-vision-transcriber/youtube_data"
+        "YOUTUBE_MCP_BASE_DIR": "/absolute/path/to/data_dir",
+        "GOOGLE__API_KEY": "your_google_key",
+        "OPENAI__API_KEY": "your_openai_key"
       }
     }
   }
@@ -92,11 +106,17 @@ Add to your `claude_desktop_config.json`:
 {
   "mcpServers": {
     "youtube-vision": {
-      "command": "uv",
-      "args": ["run", "agent.py", "--server"],
-      "cwd": "/absolute/path/to/youtube-vision-transcriber",
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/lucidprogrammer/youtube-vision-transcriber",
+        "youtube-vision-transcriber",
+        "--server"
+      ],
       "env": {
-        "YOUTUBE_MCP_BASE_DIR": "/absolute/path/to/youtube-vision-transcriber/youtube_data"
+        "YOUTUBE_MCP_BASE_DIR": "/absolute/path/to/data_dir",
+        "GOOGLE__API_KEY": "your_google_key",
+        "OPENAI__API_KEY": "your_openai_key"
       }
     }
   }

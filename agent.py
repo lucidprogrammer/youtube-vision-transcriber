@@ -8,11 +8,19 @@ Uses fast-agent chain pattern:
 """
 
 import asyncio
+import os
 from pathlib import Path
 
 from fast_agent import FastAgent
 
 fast = FastAgent("YouTubeVisionTranscriber")
+
+def get_base_dir() -> Path:
+    """Get the base data directory from env or default."""
+    base = os.environ.get("YOUTUBE_MCP_BASE_DIR", "./youtube_data")
+    path = Path(base).resolve()
+    path.mkdir(parents=True, exist_ok=True)
+    return path
 
 
 # 1) Video preparer - downloads and splits via youtube_vision_transcriber MCP
@@ -79,14 +87,14 @@ Given a detailed transcript of a tutorial video:
 
 async def main():
     """Run in interactive mode with youtube_to_article as default."""
-    Path("./youtube_data").mkdir(exist_ok=True)
+    get_base_dir() # Ensure directory exists
     async with fast.run() as agent:
         await agent.interactive()
 
 
 async def run_server():
     """Run as MCP server exposing youtube_to_article tool."""
-    Path("./youtube_data").mkdir(exist_ok=True)
+    get_base_dir() # Ensure directory exists
     await fast.start_server(
         transport="stdio",
         server_name="youtube_vision_transcriber",
@@ -94,6 +102,9 @@ async def run_server():
         tool_description="Send a YouTube URL to transcribe and convert to an article. Returns the path to the generated article.",
     )
 
+def start_server():
+    """Entry point for project script (uvx support)."""
+    asyncio.run(run_server())
 
 if __name__ == "__main__":
     import sys
