@@ -9,7 +9,7 @@ authors = [
 ]
 dependencies = [
     "fast-agent-mcp==0.4.31",
-    "fastmcp==2.13.1",
+    "fastmcp==2.14.0",
     "yt-dlp==2025.11.12",
 ]
 
