@@ -1,5 +1,5 @@
 """
-YouTube to Knowledge Agent
+YouTube Vision Transcriber Agent
 
 Uses fast-agent chain pattern:
 - video_preparer: Downloads YouTube video and splits into parts (MCP)
@@ -10,16 +10,12 @@ Uses fast-agent chain pattern:
 import asyncio
 from pathlib import Path
 
-# Load .env file before importing FastAgent
-from dotenv import load_dotenv
-load_dotenv()
-
 from fast_agent import FastAgent
 
-fast = FastAgent("YouTubeToKnowledge")
+fast = FastAgent("YouTubeVisionTranscriber")
 
 
-# 1) Video preparer - downloads and splits via youtube_video_server MCP
+# 1) Video preparer - downloads and splits via youtube_vision_transcriber MCP
 @fast.agent(
     name="video_preparer",
     instruction="""You prepare YouTube videos for transcription.
@@ -30,7 +26,7 @@ Return the JSON with these fields that the next agent needs:
 - parts: array with each part's index and filename
 
 The next agent will construct paths like: {base_dir}/parts/{filename}""",
-    servers=["youtube_video_server"],
+    servers=["youtube_vision_transcriber"],
 )
 
 
@@ -43,7 +39,7 @@ Given the manifest/parts info from video_preparer:
 
 1. For each part in the parts list:
    - Get the full video path: {base_dir}/parts/{filename}
-   - Call the `transcribe_video` tool with that full path
+   - Call the `transcribe_video_file` tool with that full path
    - Save the transcript to {base_dir}/transcripts/part_{index}.json
 
 2. After all parts are transcribed, combine them into one chronological transcript.
@@ -52,7 +48,7 @@ Given the manifest/parts info from video_preparer:
 4. IMPORTANT: At the very end of your response, output a separate line: "Base Directory: {base_dir}"
 
 Example: If base_dir is "/path/to/youtube_data/my-video" and filename is "my-video_part_000.mp4",
-call transcribe_video with "/path/to/youtube_data/my-video/parts/my-video_part_000.mp4".""",
+call transcribe_video_file with "/path/to/youtube_data/my-video/parts/my-video_part_000.mp4".""",
     servers=["video_transcriber_server", "filesystem"],
 )
 
@@ -93,7 +89,7 @@ async def run_server():
     Path("./youtube_data").mkdir(exist_ok=True)
     await fast.start_server(
         transport="stdio",
-        server_name="youtube_to_knowledge",
+        server_name="youtube_vision_transcriber",
         server_description="Convert YouTube videos to polished articles. Send a YouTube URL to get a detailed article.",
         tool_description="Send a YouTube URL to transcribe and convert to an article. Returns the path to the generated article.",
     )

@@ -8,15 +8,11 @@ import base64
 import mimetypes
 from pathlib import Path
 
-from dotenv import load_dotenv
-
 from fast_agent import FastAgent
 from fast_agent.core.logging.logger import get_logger
 from fast_agent.types import PromptMessageExtended, RequestParams, text_content
 from fastmcp import FastMCP
 from mcp.types import BlobResourceContents, EmbeddedResource
-
-load_dotenv()
 
 # Initialize logger
 logger = get_logger(__name__)
@@ -25,7 +21,7 @@ logger = get_logger(__name__)
 mcp = FastMCP(name="VideoTranscriberServer")
 
 # Initialize FastAgent for LLM capabilities
-fast = FastAgent("InternalTranscriber")
+fast = FastAgent("VideoTranscriberServer")
 
 # Define helper agent
 @fast.agent(

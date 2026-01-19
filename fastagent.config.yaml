@@ -32,7 +32,7 @@ mcp:
     filesystem:
       command: "npx"
       args: ["-y", "@modelcontextprotocol/server-filesystem", "./youtube_data"]
-    youtube_video_server:
+    youtube_vision_transcriber:
       command: "uv"
       args: ["run", "-q", "youtube_mcp.py"]
       env:

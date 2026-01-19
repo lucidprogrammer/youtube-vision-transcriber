@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import math
@@ -16,7 +17,7 @@ from fastmcp import FastMCP
 # Initialize logger
 logger = logging.getLogger(__name__)
 
-mcp = FastMCP(name="YouTubeVideoServer")
+mcp = FastMCP(name="YouTubeVisionTranscriber")
 
 
 def get_base_dir() -> Path:
@@ -38,24 +39,28 @@ def get_base_dir() -> Path:
 def slugify(title: str) -> str:
     """
     Create a Linux-safe slug from a video title.
+    - lowercase
+    - keep alnum, dash
+    - spaces -> dash
+    - strip leading/trailing dashes
+    - append 4-char MD5 hash of original title for collision resistance
     
     Args:
         title: The original video title.
         
     Returns:
         str: A slugified string suitable for filenames.
-        
-    Examples:
-        >>> slugify("Hello World")
-        'hello-world'
-        >>> slugify("FastMCP 2.0： Pythonic AI Tools")
-        'fastmcp-2-0-pythonic-ai-tools'
     """
-    title = title.strip().lower()
+    clean_title = title.strip().lower()
     # replace @, (), etc. with space then normalize
-    title = re.sub(r"[^a-z0-9]+", "-", title)
-    title = re.sub(r"-+", "-", title)
-    return title.strip("-") or "video"
+    clean_title = re.sub(r"[^a-z0-9]+", "-", clean_title)
+    clean_title = re.sub(r"-+", "-", clean_title)
+    base_slug = clean_title.strip("-") or "video"
+    
+    # 4 char hash of original title for collision resistance
+    hash_suffix = hashlib.md5(title.encode("utf-8")).hexdigest()[:4]
+    
+    return f"{base_slug}-{hash_suffix}"
 
 # --------- ffprobe / ffmpeg helpers ---------
 
