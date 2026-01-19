@@ -5,18 +5,21 @@ Exposes transcriber tool that receives video file paths and transcribes them.
 
 import asyncio
 import base64
-from pathlib import Path
 import mimetypes
-import sys
-import logging
+from pathlib import Path
 
 from dotenv import load_dotenv
+
+from fast_agent import FastAgent
+from fast_agent.core.logging.logger import get_logger
+from fast_agent.types import PromptMessageExtended, RequestParams, text_content
+from fastmcp import FastMCP
+from mcp.types import BlobResourceContents, EmbeddedResource
+
 load_dotenv()
 
-from fastmcp import FastMCP
-from fast_agent import FastAgent
-from fast_agent.types import PromptMessageExtended, text_content, RequestParams
-from mcp.types import BlobResourceContents, EmbeddedResource
+# Initialize logger
+logger = get_logger(__name__)
 
 # Initialize FastMCP server
 mcp = FastMCP(name="VideoTranscriberServer")
@@ -43,11 +46,10 @@ async def transcribe_video_file(video_path_str: str) -> str:
     """
     video_path = Path(video_path_str.strip())
     
-    # Log to file for reliable debugging
-    with open("/tmp/video_debug.log", "a") as debug_file:
-        debug_file.write(f"DEBUG: Processing {video_path}\n")
+    logger.info(f"Processing video: {video_path}")
 
     if not video_path.exists():
+        logger.error(f"File not found: {video_path}")
         return f"Error: File not found at {video_path}"
 
     # Read and encode video
@@ -97,8 +99,7 @@ async def transcribe_video_file(video_path_str: str) -> str:
              return result.last_text()
              
     except Exception as e:
-         with open("/tmp/video_debug.log", "a") as debug_file:
-            debug_file.write(f"ERROR: {str(e)}\n")
+         logger.error(f"Transcription failed: {str(e)}")
          return f"Error: {str(e)}"
 
 if __name__ == "__main__":

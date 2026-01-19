@@ -83,12 +83,14 @@ Given a detailed transcript of a tutorial video:
 
 async def main():
     """Run in interactive mode with youtube_to_article as default."""
+    Path("./youtube_data").mkdir(exist_ok=True)
     async with fast.run() as agent:
         await agent.interactive()
 
 
 async def run_server():
     """Run as MCP server exposing youtube_to_article tool."""
+    Path("./youtube_data").mkdir(exist_ok=True)
     await fast.start_server(
         transport="stdio",
         server_name="youtube_to_knowledge",
