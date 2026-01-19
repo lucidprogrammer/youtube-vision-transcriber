@@ -7,24 +7,24 @@ ENV PATH="/root/.local/bin:${PATH}" \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-# Install system dependencies
-# - ffmpeg: required for video splitting
-# - git, curl, ca-certificates: required for uv installation and project setup
-# - build-essential: required for building some dependencies
-# - nodejs, npm: required for filesystem MCP server via npx
+# Upgrade nodejs and install system dependencies
 RUN apt-get update -qq && \
     apt-get install -y -qq --no-install-recommends \
       ca-certificates \
       curl \
       git \
       build-essential \
-      ffmpeg \
-      nodejs \
-      npm && \
+      ffmpeg && \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
     rm -rf /var/lib/apt/lists/*
 
 # Install uv for fast dependency management using the official script
 RUN curl -fsSL https://astral.sh/uv/${UV_VERSION}/install.sh | sh
+
+# Pre-install the filesystem and fetch MCP servers globally to avoid runtime download timeouts
+RUN npm install -g @modelcontextprotocol/server-filesystem
+RUN uv pip install --system mcp-server-fetch
 
 # Set the working directory
 WORKDIR /app

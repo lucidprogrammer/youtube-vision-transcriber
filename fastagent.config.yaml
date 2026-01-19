@@ -27,18 +27,17 @@ otel:
 mcp:
   servers:
     fetch:
-      command: "uvx"
-      args: ["mcp-server-fetch"]
+      command: "mcp-server-fetch"
     filesystem:
-      command: "npx"
-      args: ["-y", "@modelcontextprotocol/server-filesystem", "./youtube_data"]
+      command: "mcp-server-filesystem"
+      args: ["./youtube_data"]
     youtube_vision_transcriber:
-      command: "uv"
-      args: ["run", "-q", "youtube_mcp.py"]
+      command: "python3"
+      args: ["youtube_mcp.py"]
       env:
         YOUTUBE_MCP_BASE_DIR: "./youtube_data"
 
     video_transcriber_server:
-      command: "uv"
-      args: ["run", "-q", "video_transcriber_mcp.py"]
+      command: "python3"
+      args: ["video_transcriber_mcp.py"]
 

@@ -61,33 +61,22 @@ Paste a YouTube URL when prompted. The agent will:
 2.  Split and transcribe it.
 3.  Generate an `article.md` in the video's folder.
 
-## Quick Start (Docker)
+### 🚀 Quick Start (Docker)
 
-The easiest way to use this tool is via its official Docker image. No installation required other than Docker.
+1. **Pre-create a Persistent Volume** (Recommended for data persistence):
+   ```bash
+   # Create a Docker volume linked to your home folder for easy results access
+   mkdir -p ~/youtube_data
+   docker volume rm youtube_vision_vol || true
+   docker volume create --driver local \
+     --opt type=none \
+     --opt device=$HOME/youtube_data \
+     --opt o=bind \
+     youtube_vision_vol
+   ```
 
-```bash
-docker run -it --rm \
-  -e GOOGLE__API_KEY="your_google_key" \
-  -e OPENAI__API_KEY="your_openai_key" \
-  -v /absolute/path/to/data:/app/youtube_data \
-  lucidprogrammer/youtube-vision-transcriber
-```
-
-## Environment Configuration
-
-Configuration is provided through environment variables using the `SECTION__SUBSECTION__PROPERTY` pattern:
-
-- `GOOGLE__API_KEY`: Your Google Gemini API Key.
-- `OPENAI__API_KEY`: Your OpenAI API Key (Optional, defaults to GPT-4o-mini).
-- `YOUTUBE_MCP_BASE_DIR`: Path inside the container (`/app/youtube_data`). **Always map this to a local volume** to persist video data.
-
-## MCP Client Usage
-
-You can use this tool directly in **Claude Desktop** or **VS Code** by pointing to the Docker image.
-
-### VS Code (MCP Extension) / Claude Desktop
-
-Add the following to your configuration:
+2. **Configure MCP Client**:
+   Add this to your `windsurf.json`, `cursor.json`, or `claude_desktop_config.json`:
 
 ```json
 {
@@ -98,9 +87,9 @@ Add the following to your configuration:
         "run",
         "-i",
         "--rm",
-        "-e", "GOOGLE__API_KEY=your_google_key",
-        "-e", "OPENAI__API_KEY=your_openai_key",
-        "-v", "/absolute/path/to/data_dir:/app/youtube_data",
+        "-e", "GOOGLE__API_KEY=your_key_here",
+        "-e", "OPENAI__API_KEY=your_key_here",
+        "-v", "youtube_vision_vol:/app/youtube_data",
         "lucidprogrammer/youtube-vision-transcriber"
       ]
     }
