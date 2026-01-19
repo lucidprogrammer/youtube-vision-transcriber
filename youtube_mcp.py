@@ -14,8 +14,18 @@ from typing import Any
 
 from fastmcp import FastMCP
 
-# Initialize logger
-logger = logging.getLogger(__name__)
+import traceback
+import logging
+
+# Setup persistent logging to a file that lives on the host volume
+base_dir = os.environ.get("YOUTUBE_MCP_BASE_DIR", "./youtube_data")
+log_path = Path(base_dir).resolve() / "youtube_subserver.log"
+logging.basicConfig(
+    filename=str(log_path),
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger("YouTubeVisionTranscriber")
 
 mcp = FastMCP(name="YouTubeVisionTranscriber")
 
@@ -298,51 +308,56 @@ def prepare_youtube_video(
     Returns:
         dict: Processed video metadata including resources.
     """
-    base_dir = get_base_dir()
+    try:
+        base_dir = get_base_dir()
 
-    # 1) Get title via yt-dlp JSON
-    meta = subprocess.run(
-        ["yt-dlp", "-J", url],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    meta_json = json.loads(meta.stdout)
-    title = meta_json.get("title") or "youtube-video"
-    slug = slugify(title)
+        # 1) Get title via yt-dlp JSON
+        meta = subprocess.run(
+            ["yt-dlp", "-J", url],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        meta_json = json.loads(meta.stdout)
+        title = meta_json.get("title") or "youtube-video"
+        slug = slugify(title)
 
-    video_dir = base_dir / slug
+        video_dir = base_dir / slug
 
-    # 2) download
-    video_path = download_youtube(url, slug, video_dir)
+        # 2) download
+        video_path = download_youtube(url, slug, video_dir)
 
-    # 3) split
-    parts = split_video_into_parts(video_path, slug, part_mb=part_mb)
+        # 3) split
+        parts = split_video_into_parts(video_path, slug, part_mb=part_mb)
 
-    # 4) write manifest
-    manifest = VideoManifest(
-        slug=slug,
-        title=title,
-        youtube_url=url,
-        base_dir=str(video_dir),
-        original_video=video_path.name,
-        part_size_mb=part_mb,
-        parts=parts,
-    )
-    write_manifest(manifest, video_dir)
+        # 4) write manifest
+        manifest = VideoManifest(
+            slug=slug,
+            title=title,
+            youtube_url=url,
+            base_dir=str(video_dir),
+            original_video=video_path.name,
+            part_size_mb=part_mb,
+            parts=parts,
+        )
+        write_manifest(manifest, video_dir)
 
-    # 5) return URIs
-    parts_resources = [
-        f"video://{slug}/part/{p.index}" for p in parts
-    ]
-    return {
-        "slug": slug,
-        "title": title,
-        "youtube_url": url,
-        "base_dir": str(video_dir),
-        "manifest_resource": f"video://{slug}/manifest",
-        "parts_resources": parts_resources,
-    }
+        parts_resources = [
+            f"video://{slug}/part/{p.index}" for p in parts
+        ]
+        return {
+            "slug": slug,
+            "title": title,
+            "youtube_url": url,
+            "base_dir": str(video_dir),
+            "parts": [asdict(p) for p in parts],
+            "manifest_resource": f"video://{slug}/manifest",
+            "parts_resources": parts_resources,
+        }
+    except Exception as e:
+         error_trace = traceback.format_exc()
+         logger.error(f"Preparation failed: {str(e)}\n{error_trace}")
+         raise
 
 # --------- MCP resources ---------
 

@@ -9,25 +9,31 @@ import mimetypes
 from pathlib import Path
 
 from fast_agent import FastAgent
-from fast_agent.core.logging.logger import get_logger
-from fast_agent.types import PromptMessageExtended, RequestParams, text_content
-from fastmcp import FastMCP
-from mcp.types import BlobResourceContents, EmbeddedResource
+import logging
+import os
+import traceback
 
-# Initialize logger
-logger = get_logger(__name__)
+# Setup persistent logging to a file that lives on the host volume
+base_dir = os.environ.get("YOUTUBE_MCP_BASE_DIR", "./youtube_data")
+log_path = Path(base_dir).resolve() / "video_subserver.log"
+logging.basicConfig(
+    filename=str(log_path),
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger("VideoTranscriberServer")
 
 # Initialize FastMCP server
 mcp = FastMCP(name="VideoTranscriberServer")
 
 # Initialize FastAgent for LLM capabilities
-fast = FastAgent("VideoTranscriberServer")
+fast = FastAgent("InternalTranscriber")
 
 # Define helper agent
 @fast.agent(
     name="internal_transcriber",
     instruction="INTERNAL USE ONLY - DO NOT USE THIS AGENT DIRECTLY.",
-    model="google.gemini-2.5-flash"
+    model="google.gemini-2.0-flash"
 )
 async def internal_transcriber_func():
     pass
@@ -98,7 +104,8 @@ async def transcribe_video_file(video_path_str: str) -> str:
              return result.last_text()
              
     except Exception as e:
-         logger.error(f"Transcription failed: {str(e)}")
+         error_trace = traceback.format_exc()
+         logger.error(f"Transcription failed: {str(e)}\n{error_trace}")
          return f"Error: {str(e)}"
 
 if __name__ == "__main__":
