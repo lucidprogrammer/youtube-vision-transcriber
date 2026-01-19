@@ -16,8 +16,8 @@ WORKDIR /app
 # Copy project files
 COPY . .
 
-# Install dependencies using uv into the system python
-RUN /uv/bin/uv sync --no-dev --system
+# Install dependencies and the project itself using uv into the system python
+RUN /uv/bin/uv pip install --system .
 
 # Ensure the data directory exists
 ENV YOUTUBE_MCP_BASE_DIR=/app/youtube_data
