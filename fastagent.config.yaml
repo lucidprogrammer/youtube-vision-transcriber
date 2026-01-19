@@ -1,0 +1,49 @@
+
+default_model: openai.gpt-5-mini  # or e.g. google.gemini-2.5-flash
+
+execution_engine: asyncio
+
+logger:
+  progress_display: false  # Disable to avoid rich library recursion bug
+  type: "file"  # Can be "http" for remote logging
+  level: "info"
+  path: "fastagent.jsonl"
+  # For Kubernetes syslog/HTTP endpoint:
+  # type: "http"
+  # http_endpoint: "http://your-k8s-logging-service:8080/logs"
+  # http_headers:
+  #   Authorization: "Bearer ${LOG_API_KEY}"
+
+# OpenTelemetry for Jaeger tracing
+otel:
+  enabled: false  # Set to true to enable
+  service_name: "youtube-to-knowledge"
+  otlp_endpoint: "http://jaeger-collector:4318/v1/traces"  # Your Jaeger OTLP endpoint
+  sample_rate: 1.0
+
+# LLM provider configs - use environment variables for API keys
+openai:
+  api_key: "${OPENAI_API_KEY}"
+  base_url: "https://api.openai.com/v1"
+
+google:
+  api_key: "${GOOGLE_API_KEY}"
+
+mcp:
+  servers:
+    fetch:
+      command: "uvx"
+      args: ["mcp-server-fetch"]
+    filesystem:
+      command: "npx"
+      args: ["-y", "@modelcontextprotocol/server-filesystem", "./youtube_data"]
+    youtube_video_server:
+      command: "uv"
+      args: ["run", "-q", "youtube_mcp.py"]
+      env:
+        YOUTUBE_MCP_BASE_DIR: "./youtube_data"
+
+    video_transcriber_server:
+      command: "uv"
+      args: ["run", "-q", "video_transcriber_mcp.py"]
+

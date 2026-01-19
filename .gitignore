@@ -1,0 +1,6 @@
+.env
+youtube_data/
+__pycache__/
+.venv/
+*.log
+fastagent.jsonl
