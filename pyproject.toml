@@ -4,6 +4,9 @@ version = "0.1.0"
 description = "AI-powered pipeline that converts YouTube videos into polished articles using vision-based transcription"
 readme = "README.md"
 requires-python = ">=3.13.5"
+authors = [
+    { name = "lucidprogrammer", email = "lucidprogrammer@gmail.com" }
+]
 dependencies = [
     "fast-agent-mcp==0.4.31",
     "fastmcp==2.13.1",
@@ -13,4 +16,12 @@ dependencies = [
 [project.scripts]
 youtube-vision-transcriber = "agent:start_server"
 
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
+[tool.uv]
+package = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
