@@ -9,19 +9,13 @@ import mimetypes
 from pathlib import Path
 
 from fast_agent import FastAgent
-import logging
-import os
-import traceback
+from fast_agent.core.logging.logger import get_logger
+from fast_agent.types import PromptMessageExtended, RequestParams, text_content
+from fastmcp import FastMCP
+from mcp.types import BlobResourceContents, EmbeddedResource
 
-# Setup persistent logging to a file that lives on the host volume
-base_dir = os.environ.get("YOUTUBE_MCP_BASE_DIR", "./youtube_data")
-log_path = Path(base_dir).resolve() / "video_subserver.log"
-logging.basicConfig(
-    filename=str(log_path),
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
-logger = logging.getLogger("VideoTranscriberServer")
+# Initialize logger
+logger = get_logger(__name__)
 
 # Initialize FastMCP server
 mcp = FastMCP(name="VideoTranscriberServer")
@@ -104,8 +98,7 @@ async def transcribe_video_file(video_path_str: str) -> str:
              return result.last_text()
              
     except Exception as e:
-         error_trace = traceback.format_exc()
-         logger.error(f"Transcription failed: {str(e)}\n{error_trace}")
+         logger.error(f"Transcription failed: {str(e)}")
          return f"Error: {str(e)}"
 
 if __name__ == "__main__":

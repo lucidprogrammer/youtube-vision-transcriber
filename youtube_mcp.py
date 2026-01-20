@@ -14,18 +14,8 @@ from typing import Any
 
 from fastmcp import FastMCP
 
-import traceback
-import logging
-
-# Setup persistent logging to a file that lives on the host volume
-base_dir = os.environ.get("YOUTUBE_MCP_BASE_DIR", "./youtube_data")
-log_path = Path(base_dir).resolve() / "youtube_subserver.log"
-logging.basicConfig(
-    filename=str(log_path),
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
-logger = logging.getLogger("YouTubeVisionTranscriber")
+# Initialize logger
+logger = logging.getLogger(__name__)
 
 mcp = FastMCP(name="YouTubeVisionTranscriber")
 
@@ -355,8 +345,7 @@ def prepare_youtube_video(
             "parts_resources": parts_resources,
         }
     except Exception as e:
-         error_trace = traceback.format_exc()
-         logger.error(f"Preparation failed: {str(e)}\n{error_trace}")
+         logger.error(f"Preparation failed: {str(e)}")
          raise
 
 # --------- MCP resources ---------

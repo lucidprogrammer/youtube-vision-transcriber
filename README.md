@@ -48,6 +48,20 @@ Unlike standard transcribers that only read audio captions, this tool uses **Goo
       api_key: "YOUR_OPENAI_API_KEY"
     ```
 
+4.  **Install MCP Sub-Server Dependencies** (For Local Development):
+    The project uses external MCP servers that need to be installed globally:
+    ```bash
+    # Filesystem MCP server (Node.js)
+    npm install -g @modelcontextprotocol/server-filesystem
+    
+    # Fetch MCP server (Python)
+    pip install mcp-server-fetch
+    # OR using uv:
+    uv pip install mcp-server-fetch
+    ```
+    
+    > **Note**: If you're only using Docker, you can skip this step as these dependencies are pre-installed in the container.
+
 ## CLI Usage
 
 You can run the agent interactively in your terminal:
@@ -73,6 +87,7 @@ Paste a YouTube URL when prompted. The agent will:
      --opt device=$HOME/youtube_data \
      --opt o=bind \
      youtube_vision_vol
+     
    ```
 
 2. **Configure MCP Client**:
